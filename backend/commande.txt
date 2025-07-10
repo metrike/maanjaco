@@ -1,0 +1,27 @@
+- `node ace migration:run` : pour exécuter les migrations.
+- `node ace migration:reset` : pour réinitialiser les migrations.
+- `node ace migration:refresh --seed` : pour rafraîchir les migrations et peupler la base de données.
+-  node ace make:model nom -m
+-  node ace make:controller NomController
+-  node ace make:migration
+-  node ace make:seeder scrap_manga
+
+mv /root/manjaco /home/manjaco/
+chown -R manjaco:manjaco /home/manjaco/manjaco
+node ace db:seed --files "database/seeders/scrap_manga_seeder"
+ssh-copy-id root@163.172.176.168
+ssh root@163.172.176.168
+cd /home/manjaco
+su - manjaco
+setxkbmap fr
+chmod +x /tmp/chromium
+/tmp/chromium --no-sandbox --headless --disable-gpu --remote-debugging-port=9222 https://example.com
+/tmp/chromium --no-sandbox --headless --disable-gpu --remote-debugging-port=9222 &
+sudo crontab -e
+/root/manjaco/run_scraper.sh
+/root/.local/bin/protonvpn init
+vim /root/manjaco/run_scraper.sh
+crontab -e
+
+nohup node ace db:seed --files "database/seeders/duckduckgo_cover_seeder.ts" > seed.log 2>&1 &
+node ace db:seed --files database/seeders/work_sql_seeder.ts
