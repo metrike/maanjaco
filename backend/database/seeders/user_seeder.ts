@@ -5,7 +5,7 @@ export default class extends BaseSeeder {
   // évite d’exécuter en prod par mégarde
   public static developmentOnly = true
 
-  async run () {
+  async run() {
     await User.updateOrCreateMany('id', [
       {
         id: 1,

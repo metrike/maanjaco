@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
-import {BaseModel, column, hasMany} from "@adonisjs/lucid/orm";
+import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
-import UserProgress from "#models/user_progress";
+import UserProgress from '#models/user_progress'
 
 export default class Work extends BaseModel {
   @column({ isPrimary: true })
@@ -11,7 +11,7 @@ export default class Work extends BaseModel {
   declare title: string
 
   @column()
-  declare type:string
+  declare type: string
 
   @column()
   declare sourceUrl: string
@@ -34,11 +34,7 @@ export default class Work extends BaseModel {
   @column({
     consume: (value: string | string[]) => {
       try {
-        return Array.isArray(value)
-          ? value
-          : typeof value === 'string'
-            ? JSON.parse(value)
-            : []
+        return Array.isArray(value) ? value : typeof value === 'string' ? JSON.parse(value) : []
       } catch {
         return []
       }
@@ -46,6 +42,4 @@ export default class Work extends BaseModel {
     prepare: (value: string[]) => JSON.stringify(value),
   })
   public genres: string[] | undefined
-
-
 }

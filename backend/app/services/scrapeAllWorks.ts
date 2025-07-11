@@ -1,8 +1,8 @@
 // app/services/scrapeAllWorks.ts
 import { scrapeChapterCount } from './scrapeChapterCount.js'
 import { ScraperConfig, ListPageSelectors } from '#types/scraper'
-import { mkdirSync, existsSync } from 'fs'
-import { join } from 'path'
+import { mkdirSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import type { Browser, Page } from 'puppeteer'
 import puppeteer from 'puppeteer'
@@ -20,13 +20,13 @@ interface WorkInfo {
 }
 
 export async function scrapeAllWorks({
-                                       root,
-                                       listPath,
-                                       selectors,
-                                       chapterSelectors,
-                                       limit = 0,
-                                       parallelChunks = 5,
-                                     }: ScraperConfig): Promise<WorkInfo[]> {
+  root,
+  listPath,
+  selectors,
+  chapterSelectors,
+  limit = 0,
+  parallelChunks = 5,
+}: ScraperConfig): Promise<WorkInfo[]> {
   const hardLimit = limit && limit > 0 ? limit : Number.POSITIVE_INFINITY
   console.log(`🚀 scrapeAllWorks – limit = ${hardLimit}`)
 
@@ -114,14 +114,13 @@ export async function scrapeAllWorks({
           const btn = await page.$(loadMore)
           if (!btn) break
 
-          const before = await page.$$eval(card, els => els.length)
+          const before = await page.$$eval(card, (els) => els.length)
           await btn.click()
           clicks++
 
           try {
             await page.waitForFunction(
-              (sel: string, prev: number) =>
-                document.querySelectorAll(sel).length > prev,
+              (sel: string, prev: number) => document.querySelectorAll(sel).length > prev,
               { timeout: 10000, polling: 250 },
               card,
               before
@@ -157,7 +156,7 @@ export async function scrapeAllWorks({
       for (const w of pageWorks) {
         if (
           w.sourceUrl &&
-          !thumbs.find(t => t.sourceUrl === w.sourceUrl) &&
+          !thumbs.find((t) => t.sourceUrl === w.sourceUrl) &&
           thumbs.length < hardLimit
         ) {
           thumbs.push(w)
@@ -169,7 +168,7 @@ export async function scrapeAllWorks({
 
       const next = await page.$(nextPage)
       if (!next) break
-      currentUrl = await page.evaluate(a => (a as any).href, next)
+      currentUrl = await page.evaluate((a) => (a as any).href, next)
     }
 
     console.log(`✅ Listage terminé – ${thumbs.length} série(s)`)

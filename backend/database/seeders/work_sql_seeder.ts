@@ -1,10 +1,10 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import { writeFileSync } from 'fs'
+import { writeFileSync } from 'node:fs'
 import { DateTime } from 'luxon'
 import Work from '#models/work'
 
 export default class Work_sql_seeder extends BaseSeeder {
-  public async run () {
+  public async run() {
     const allWorks = await Work.all()
     console.log(`📦 ${allWorks.length} works récupérés`)
 
@@ -16,12 +16,11 @@ export default class Work_sql_seeder extends BaseSeeder {
       'totalChapters',
       'type',
       'lastScrapedAt',
-      "genres",
-      'description'
+      'genres',
+      'description',
     ]
 
     const snakeColumns = columns.map(toSnakeCase)
-
 
     const sqlLines = allWorks.map((work) => {
       const values = columns.map((col) => {
@@ -43,5 +42,4 @@ export default class Work_sql_seeder extends BaseSeeder {
   }
 }
 
-const toSnakeCase = (str: string) =>
-  str.replace(/([A-Z])/g, '_$1').toLowerCase()
+const toSnakeCase = (str: string) => str.replace(/([A-Z])/g, '_$1').toLowerCase()

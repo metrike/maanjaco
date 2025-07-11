@@ -1,5 +1,5 @@
 // types/scraper.ts
-import {ChapterPageSelectors} from "#services/scrapeChapterCount";
+import { ChapterPageSelectors } from '#services/scrapeChapterCount'
 
 export interface ListPageSelectors {
   /** carte contenant titre + lien + cover */
@@ -16,7 +16,6 @@ export interface ListPageSelectors {
   nextPage?: string
 
   latestChapter?: string
-
 }
 
 export interface ScraperConfig {
@@ -27,7 +26,7 @@ export interface ScraperConfig {
   /** Sélecteurs pour extraire les données sur la liste */
   selectors: ListPageSelectors
   /** Nombre maximum de séries à récupérer */
-  chapterSelectors: ChapterPageSelectors     // ← ajouté
+  chapterSelectors: ChapterPageSelectors // ← ajouté
 
   limit?: number
   /** Taille des paquets parallèles pour le comptage des chapitres */

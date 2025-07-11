@@ -1,70 +1,63 @@
 // import type { HttpContext } from '@adonisjs/core/http'
 
-import type {HttpContext} from "@adonisjs/core/http";
-import {scrapeAllWorks} from "#services/scrapeAllWorks";
-import Work from "#models/work";
+import type { HttpContext } from '@adonisjs/core/http'
+import { scrapeAllWorks } from '#services/scrapeAllWorks'
+import Work from '#models/work'
 export const phenixConfig = {
-  root     : 'https://phenix-scans.com',
-  listPath : '/manga/',
+  root: 'https://phenix-scans.com',
+  listPath: '/manga/',
   selectors: {
-    card     : 'div.manga-list__card',
-    link     : 'a.manga-list__link',
-    title    : '.manga-list__card-title',
-    img      : 'img',
-    loadMore : 'div.manga-list__load-more > button, button.btn-load-more, button.series-load-more',
-    nextPage : 'a[rel="next"], a.page-numbers.next',
+    card: 'div.manga-list__card',
+    link: 'a.manga-list__link',
+    title: '.manga-list__card-title',
+    img: 'img',
+    loadMore: 'div.manga-list__load-more > button, button.btn-load-more, button.series-load-more',
+    nextPage: 'a[rel="next"], a.page-numbers.next',
   },
   chapterSelectors: {
-    chapter  : 'li.wp-manga-chapter, a.project__chapter',
-    loadMore : 'button.project__chapter-load-more, button.btn-load-more',
+    chapter: 'li.wp-manga-chapter, a.project__chapter',
+    loadMore: 'button.project__chapter-load-more, button.btn-load-more',
   },
-  limit          : 10,   // ← jusqu’à 60 séries
-  parallelChunks : 5,
+  limit: 10, // ← jusqu’à 60 séries
+  parallelChunks: 5,
 } as const
 
 /* scanMangaConfig.ts
    ———————————————————————————————————————————————————————— */
 export const scanMangaConfig = {
-  root     : 'https://www.scan-manga.com',
-  listPath : '/',
+  root: 'https://www.scan-manga.com',
+  listPath: '/',
 
   /* — LISTE — */
-  selectors : {
+  selectors: {
     /* carte + infos */
-    card   : 'article.top_body',
-    link   : 'span.left > a.hover_text_manga',
-    title  : 'span.left > a.hover_text_manga',
-    img    : 'div.logo_manga img, div.image_manga.image_listing img',
+    card: 'article.top_body',
+    link: 'span.left > a.hover_text_manga',
+    title: 'span.left > a.hover_text_manga',
+    img: 'div.logo_manga img, div.image_manga.image_listing img',
 
     /* boutons / pagination */
-    loadMore : '#seemorepub',
-    nextPage : '',
+    loadMore: '#seemorepub',
+    nextPage: '',
 
     /* dernier chapitre indiqué sur la carte              */
-    latestChapter : 'span.left',           // ⬅️  Nouveau + obligé pour “quick”
+    latestChapter: 'span.left', // ⬅️  Nouveau + obligé pour “quick”
   },
 
   /* — PAGE CHAPITRES — */
-  chapterSelectors : {
+  chapterSelectors: {
     /* sur Scan-Manga, tous les liens de la table #listing suffisent */
-    chapter  : '#listing a',               // couvre VO + VF
-    loadMore : '',                         // il n’y en a pas
+    chapter: '#listing a', // couvre VO + VF
+    loadMore: '', // il n’y en a pas
   },
 
   /* — OPTIONS — */
-  limit          : 10,
-  parallelChunks : 5,
-} as const;
-
-
-
-
+  limit: 10,
+  parallelChunks: 5,
+} as const
 
 export default class WorksController {
-
-
-
-  public async countChapters ({ request, response }: HttpContext) {
+  public async countChapters({ request, response }: HttpContext) {
     const mangaUrl = request.input('url')
 
     /* ---------- Mode 1 : une seule série --------------------------------- */
@@ -85,7 +78,7 @@ export default class WorksController {
 
     /* ---------- Mode 2 : catalogue complet -------------------------------- */
     try {
-      console.log("🔄 Scraping all works from "+scanMangaConfig.root)
+      console.log('🔄 Scraping all works from ' + scanMangaConfig.root)
       const works = await scrapeAllWorks(scanMangaConfig)
       console.log(works)
       return response.ok(works)
@@ -96,15 +89,14 @@ export default class WorksController {
   }
 
   public async searchManga({ request, response }: HttpContext) {
-    console.log("🔍 Recherche de manga...")
+    console.log('🔍 Recherche de manga...')
     const query = request.input('query', '').trim()
-    console.log("🔍 Recherche de manga pour la requête :", query)
+    console.log('🔍 Recherche de manga pour la requête :', query)
     if (!query) {
       return response.badRequest({ message: 'Aucune requête fournie.' })
     }
 
-    const works = await Work
-      .query()
+    const works = await Work.query()
       .whereILike('title', `%${query}%`)
       // .orWhereILike('description', `%${query}%`)
       // .orWhereRaw(`genres::text ILIKE ?`, [`%${query}%`]) // pour rechercher dans les genres JSON-stringifiés

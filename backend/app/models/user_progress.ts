@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon'
 
-import {BaseModel, belongsTo, column} from "@adonisjs/lucid/orm";
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import User from "#models/user";
-import Work from "#models/work";
+import User from '#models/user'
+import Work from '#models/work'
 
 export default class UserProgress extends BaseModel {
   @column({ isPrimary: true })

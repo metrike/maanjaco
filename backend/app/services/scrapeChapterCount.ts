@@ -20,15 +20,14 @@ export interface ChapterScraperConfig {
 
 /* ───────────── Fonction principale ───────────── */
 
-export async function scrapeChapterCount ({
-                                            url,
-                                            selectors,
-                                            firstChapterTimeout = 15_000,
-                                          }: ChapterScraperConfig): Promise<number> {
-
+export async function scrapeChapterCount({
+  url,
+  selectors,
+  firstChapterTimeout = 15_000,
+}: ChapterScraperConfig): Promise<number> {
   const browser: Browser = await puppeteer.launch({
-    headless       : true,
-    args           : ['--no-sandbox'],
+    headless: true,
+    args: ['--no-sandbox'],
     defaultViewport: { width: 1280, height: 1080 },
   })
 
@@ -50,7 +49,7 @@ export async function scrapeChapterCount ({
         if (!btn) break
 
         /* nombre de chapitres avant le clic */
-        const before = await page.$$eval(selectors.chapter, els => els.length)
+        const before = await page.$$eval(selectors.chapter, (els) => els.length)
 
         await Promise.all([
           page.waitForResponse(() => true), // AJAX
@@ -59,11 +58,10 @@ export async function scrapeChapterCount ({
 
         try {
           await page.waitForFunction(
-            (sel, prev) =>
-              document.querySelectorAll(sel).length > prev,
+            (sel, prev) => document.querySelectorAll(sel).length > prev,
             { timeout: 10_000, polling: 250 },
             selectors.chapter,
-            before,
+            before
           )
         } catch {
           break // plus rien ne se charge
@@ -72,10 +70,7 @@ export async function scrapeChapterCount ({
     }
 
     /* 4. Compte final */
-    const count: number = await page.$$eval(
-      selectors.chapter,
-      els => els.length,
-    )
+    const count: number = await page.$$eval(selectors.chapter, (els) => els.length)
     console.log(`🔎 DEBUG ${url} → ${count} chapitres trouvés avec "${selectors.chapter}"`)
     return count
   } finally {

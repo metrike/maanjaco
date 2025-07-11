@@ -46,29 +46,28 @@ export default class extends BaseSeeder {
       //   coverInPage: true,
       // },
       {
-      name: 'Mangakakalot',
-      root: 'https://www.mangakakalot.gg',
-      listPath: '/genre/all?type=topview&category=all&state=all&page=1',
-      selectors: {
-        card   : '.list-truyen-item-wrap',
-        link   : 'h3 a',
-        title  : 'h3 a',
-        img    : 'img',
-        latestChapter: 'a.list-story-item-wrap-chapter', // ✅ ajout correct ici
-        loadMore: '',
-        nextPage: '',
+        name: 'Mangakakalot',
+        root: 'https://www.mangakakalot.gg',
+        listPath: '/genre/all?type=topview&category=all&state=all&page=1',
+        selectors: {
+          card: '.list-truyen-item-wrap',
+          link: 'h3 a',
+          title: 'h3 a',
+          img: 'img',
+          latestChapter: 'a.list-story-item-wrap-chapter', // ✅ ajout correct ici
+          loadMore: '',
+          nextPage: '',
+        },
+        chapterSelectors: {
+          chapter: '.row-content-chapter li a',
+          loadMore: '',
+        },
+        limit: 0,
+        parallelChunks: 5,
+        coverInPage: true,
+        descriptionSelector: '#contentBox', // ✅ Ajout du sélecteur
+        genreSelector: '.genre-list a', // ✅ Ajout ici
       },
-      chapterSelectors: {
-        chapter: '.row-content-chapter li a',
-        loadMore: '',
-      },
-      limit: 0,
-      parallelChunks: 5,
-      coverInPage: true,
-      descriptionSelector: '#contentBox', // ✅ Ajout du sélecteur
-      genreSelector: '.genre-list a', // ✅ Ajout ici
-      }
-
     ])
   }
 }

@@ -2,8 +2,8 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Work from '#models/work'
 import { DateTime } from 'luxon'
 import puppeteer from 'puppeteer'
-import path from 'path'
-import fs from 'fs'
+import path from 'node:path'
+import fs from 'node:fs'
 
 export default class DuckduckgoCoverSeeder extends BaseSeeder {
   public async run() {
@@ -25,7 +25,6 @@ export default class DuckduckgoCoverSeeder extends BaseSeeder {
       ],
     })
 
-
     const page = await browser.newPage()
 
     for (let i = 0; i < total; i++) {
@@ -43,7 +42,7 @@ export default class DuckduckgoCoverSeeder extends BaseSeeder {
 
         const imageUrl = await page.evaluate(() => {
           const images = Array.from(document.querySelectorAll('img'))
-          const target = images.find(img => img.src.includes('external-content'))
+          const target = images.find((img) => img.src.includes('external-content'))
           if (!target) return null
           return target.src.startsWith('//') ? 'https:' + target.src : target.src
         })
@@ -57,7 +56,6 @@ export default class DuckduckgoCoverSeeder extends BaseSeeder {
         } else {
           console.warn(`❌ Aucune image "external-content" trouvée pour : ${work.title}`)
         }
-
       } catch (error: any) {
         console.error(`❌ Erreur DuckDuckGo pour ${work.title} : ${error.message}`)
 
@@ -77,4 +75,3 @@ export default class DuckduckgoCoverSeeder extends BaseSeeder {
     await browser.close()
   }
 }
-

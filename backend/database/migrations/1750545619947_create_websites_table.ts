@@ -22,7 +22,6 @@ export default class extends BaseSchema {
 
       table.timestamps(true)
       table.string('description_selector').nullable() // Ajout du sélecteur pour la description
-
     })
   }
 
