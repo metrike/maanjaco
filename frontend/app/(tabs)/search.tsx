@@ -15,6 +15,7 @@ const Search = () => {
 
         try {
             const response = await searchManga(query.trim())
+            console.log(response)
             setResults(response)
         } catch (error) {
             console.error("Erreur de recherche :", error)
@@ -33,6 +34,8 @@ const Search = () => {
         //     console.error("Erreur lors de l'ajout en favoris :", err)
         // }
     }
+
+    // console.log(results)
 
     return (
         <div className="flex flex-col items-center h-screen p-6 overflow-hidden">
@@ -57,7 +60,7 @@ const Search = () => {
 
             {/* Scrollable result area */}
             <div className="w-full max-w-2xl flex-1 overflow-y-auto space-y-4 pr-2">
-                {results.map((work: any) => (
+                {results?.map((work: any) => (
                     <div
                         key={work.id}
                         className="flex gap-4 border rounded p-4 shadow bg-white hover:shadow-md transition"
@@ -68,7 +71,7 @@ const Search = () => {
                             onClick={() => router.push(`/work-details/${work.id}`)}
                         >
                             <img
-                                src={work.coverUrl}
+                                src={work.cover_url}
                                 alt={work.title}
                                 className="w-24 h-36 object-cover rounded"
                             />

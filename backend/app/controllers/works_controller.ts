@@ -3,6 +3,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { scrapeAllWorks } from '#services/scrapeAllWorks'
 import Work from '#models/work'
+import db from '@adonisjs/lucid/services/db'
 export const phenixConfig = {
   root: 'https://phenix-scans.com',
   listPath: '/manga/',
@@ -89,20 +90,26 @@ export default class WorksController {
   }
 
   public async searchManga({ request, response }: HttpContext) {
-    console.log('🔍 Recherche de manga...')
     const query = request.input('query', '').trim()
-    console.log('🔍 Recherche de manga pour la requête :', query)
+    console.log(query)
     if (!query) {
       return response.badRequest({ message: 'Aucune requête fournie.' })
     }
 
-    const works = await Work.query()
-      .whereILike('title', `%${query}%`)
-      // .orWhereILike('description', `%${query}%`)
-      // .orWhereRaw(`genres::text ILIKE ?`, [`%${query}%`]) // pour rechercher dans les genres JSON-stringifiés
-      .limit(20) // limite pour éviter de surcharger
-    console.log(works)
-    return response.ok(works)
+    // Minimum de similarité (0.0 à 1.0) — ajustable
+    const threshold = query.length < 5 ? 0.6 : 0.4
+
+    const results = await db
+      .from('works')
+      .select('*')
+      .whereRaw('similarity(title, ?) > ?', [query, threshold])
+      .orWhereILike('title', `%${query}%`)
+      .orderByRaw('similarity(title, ?) DESC', [query])
+      .limit(20)
+
+
+    console.log(results)
+    return response.ok(results)
   }
 
   public async getMangaDetailsWithId({ params, response }: HttpContext) {

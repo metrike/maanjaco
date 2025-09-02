@@ -32,7 +32,6 @@ export default class AuthController {
     try {
       const user = await User.verifyCredentials(username, password)
       const token = await auth.use('api').createToken(user, ['*'])
-
       return response.ok({ user, token })
     } catch {
       return response.unauthorized({ message: 'Identifiants invalides' })
