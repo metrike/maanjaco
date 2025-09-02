@@ -2,9 +2,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import router from '@adonisjs/core/services/router'
 import User from '#models/user'
-
+import Admin from '#models/admin'
 // Scrapers
 import { scrapeChapterCount } from '#services/scrapeChapterCount'
+import { is } from '@xata.io/client'
 
 /* -------------------------------------------------------------------------- */
 /* Config Phenix – à sortir dans un fichier dédié si tu veux en ajouter d’autres */
@@ -41,5 +42,16 @@ export default class AuthController {
   /* --------------------------- TOKEN CHECK ------------------------------- */
   public async checkIsLogin({ auth, response }: HttpContext) {
     return response.ok({ message: !!auth.use('api').user })
+  }
+
+  public async isAdmin({ auth, response }: HttpContext) {
+    const user = auth.use('api').user
+
+    if (!user) {
+      return response.unauthorized({ message: 'Utilisateur non authentifié.' })
+    }
+
+    const isAdmin = await Admin.query().where('username', user.username).first()
+    return response.ok({ message: !!isAdmin })
   }
 }

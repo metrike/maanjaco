@@ -47,3 +47,24 @@ export const getMangaDetails = async (id: number): Promise<any> => {
         throw new Error("Error connecting to server")
     }
 }
+
+
+export const getSearchImages= async (id: number): Promise<string[]> => {
+    const token = await AsyncStorage.getItem("token")
+
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+    }
+
+    try {
+        const response = await axios.get(`${API_URL}/works/searchImages/${id}`, config)
+        return response.data
+    } catch (err: unknown) {
+        await AsyncStorage.removeItem('token')
+        throw new Error("Error connecting to server")
+    }
+}

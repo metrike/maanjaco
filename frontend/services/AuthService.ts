@@ -87,3 +87,26 @@ export const checkIsLogin = async () : Promise<Return> =>{
         }
     }
 }
+
+export const isAdminUser = async () : Promise<Return> =>{
+    const token= await AsyncStorage.getItem("token")
+    const configWithToken={
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        withCredentials: true
+        }
+        try {
+            const response = await axios.get<Return>(`${API_URL}/auth/isAdmin`, configWithToken)
+
+            return response.data
+        } catch (err: unknown) {
+            if ((err as AXIOS_ERROR).message) {
+                AsyncStorage.removeItem('token')
+                throw new Error("Error connecting")
+            } else {
+                throw new Error("Error connecting to server")
+            }
+        }
+}

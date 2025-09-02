@@ -1,8 +1,8 @@
 // app/services/scrapeAllWorks.ts
 import { scrapeChapterCount } from './scrapeChapterCount.js'
 import { ScraperConfig, ListPageSelectors } from '#types/scraper'
-import { mkdirSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import fs, { mkdirSync, existsSync } from 'node:fs'
+import path, { join } from 'node:path'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import type { Browser, Page } from 'puppeteer'
 import puppeteer from 'puppeteer'
@@ -211,4 +211,96 @@ export async function scrapeAllWorks({
     await browser.close()
     console.log('👋 Chromium fermé')
   }
+}
+
+
+export async function scrapeImagesFromUrl(sourceUrl: string): Promise<string[]> {
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    executablePath: '/opt/homebrew/bin/chromium',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
+      '--window-size=1280,800',
+      '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+    ],
+  })
+
+  const page = await browser.newPage()
+
+  try {
+    const query = `${extractTitleFromUrl(sourceUrl)} cover manga`
+    const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}&iax=images&ia=images`
+
+    console.log(`\n🔍 Query : ${query}`)
+    console.log(`🌐 URL DuckDuckGo : ${searchUrl}`)
+
+    await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 })
+
+    await page.waitForSelector('img', { timeout: 15000 })
+
+    // Scroll pour charger plus d'images
+    await page.evaluate(async () => {
+      await new Promise((resolve) => {
+        let totalHeight = 0
+        const distance = 200
+        const timer = setInterval(() => {
+          window.scrollBy(0, distance)
+          totalHeight += distance
+          if (totalHeight >= document.body.scrollHeight) {
+            clearInterval(timer)
+            resolve(true)
+          }
+        }, 200)
+      })
+    })
+
+
+    // Récupérer les images
+    const imageUrls = await page.evaluate(() => {
+      const imgs = Array.from(document.querySelectorAll('img'))
+      return imgs
+        .map((img) => img.src)
+        .filter((src) =>
+          src.includes('external-content') || src.startsWith('https://external')
+        )
+        .slice(0, 5)
+    })
+
+    console.log(`✅ ${imageUrls.length} image(s) trouvée(s)`)
+
+    if (imageUrls.length === 0) {
+      await saveScreenshot(page, 'empty_result')
+    }
+
+    return imageUrls
+  } catch (err: any) {
+    console.error('❌ Erreur dans scrapeImagesFromUrl :', err.message)
+    await saveScreenshot(page, 'error')
+    return []
+  } finally {
+    await browser.close()
+  }
+}
+
+// Utilitaire : enregistrer un screenshot
+async function saveScreenshot(page: puppeteer.Page, namePrefix: string) {
+  const screenshotDir = path.resolve('tmp/screenshots')
+  if (!fs.existsSync(screenshotDir)) {
+    fs.mkdirSync(screenshotDir, { recursive: true })
+  }
+
+  const timestamp = Date.now()
+  const filePath = path.join(screenshotDir, `${namePrefix}_${timestamp}.png`)
+  await page.screenshot({ path: filePath, fullPage: true })
+  console.log(`📸 Screenshot sauvegardé : ${filePath}`)
+}
+
+// Utilitaire : extraire un nom de manga lisible depuis l’URL source
+function extractTitleFromUrl(url: string): string {
+  const parts = url.split('/')
+  const slug = parts[parts.length - 1] || ''
+  return slug.replace(/[-_]/g, ' ').replace(/\d+/g, '').trim()
 }

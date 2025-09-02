@@ -84,7 +84,7 @@ const Search = () => {
                                     {work.description?.slice(0, 100)}...
                                 </p>
                                 <p className="text-sm text-gray-500">
-                                    Chapitres : {work.totalChapters}
+                                    Chapitres : {work.total_chapters}
                                 </p>
                             </div>
                         </div>

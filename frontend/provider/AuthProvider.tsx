@@ -3,7 +3,7 @@ import USER_LOGIN from "../type/user_login"
 import AUTH_CONTEXT_TYPE from "../type/auth_context"
 import CONNECTION_RESPONSE_LOGIN from "../type/connection_response_login"
 import { useLocation } from "react-router-dom"
-import {checkIsLogin, loginUser} from "../services/AuthService";
+import {checkIsLogin, isAdminUser, loginUser} from "../services/AuthService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Return from "../type/return";
 import {router, usePathname} from "expo-router";
@@ -14,6 +14,7 @@ const defaultContextValue: AUTH_CONTEXT_TYPE = {
 
         return { message: "" }
     },
+    isAdmin: false
     // logout: async (): Promise<CONNECTION_RESPONSE_LOGIN> => {
     //     await Promise.resolve()
     //
@@ -36,11 +37,19 @@ const AUTH_CONTEXT = createContext<AUTH_CONTEXT_TYPE>(defaultContextValue)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(true)
+    const [isAdmin, setIsAdmin] = useState(false)
     const pathName = usePathname();
     useEffect(() => {
         const result = async () => {
             try {
                 const data = await checkIsLogin()
+                const data2 = await isAdminUser()
+                console.log(data2)
+                if (data2.message) {
+                    setIsAdmin(true)
+                } else {
+                    setIsAdmin(false)
+                }
                 if (data.message) {
                     setIsAuthenticated(true)
                 }else{
@@ -72,6 +81,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         return data
     }
+
+
     // const logout = async (): Promise<CONNECTION_RESPONSE_LOGIN> => {
     //     const result = await logoutUser()
     //     if (result.message) {
@@ -103,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // }
 
     return (
-        <AUTH_CONTEXT.Provider value={{ isAuthenticated, login}}>
+        <AUTH_CONTEXT.Provider value={{ isAuthenticated, login,isAdmin }}>
             {children}
         </AUTH_CONTEXT.Provider>
     )

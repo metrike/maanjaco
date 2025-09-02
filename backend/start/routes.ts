@@ -20,6 +20,9 @@ router
     router.post('/auth/checkIsLogin', [AuthController, 'checkIsLogin'])
     router.get('/works/search', [WorksController, 'searchManga'])
     router.get('/getWorkById/:id', [WorksController, 'getMangaDetailsWithId'])
+    router.get('/auth/isAdmin', [AuthController, 'isAdmin'])
+    router.get('/works/searchImages/:id', [WorksController, 'searchImages'])
+
   })
   .use([
     middleware.auth({

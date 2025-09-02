@@ -1,7 +1,7 @@
 // import type { HttpContext } from '@adonisjs/core/http'
 
 import type { HttpContext } from '@adonisjs/core/http'
-import { scrapeAllWorks } from '#services/scrapeAllWorks'
+import { scrapeAllWorks, scrapeImagesFromUrl } from '#services/scrapeAllWorks'
 import Work from '#models/work'
 import db from '@adonisjs/lucid/services/db'
 export const phenixConfig = {
@@ -128,4 +128,27 @@ export default class WorksController {
       return response.notFound({ message: 'Manga non trouvé.' })
     }
   }
+
+  public async searchImages({ params, response }: HttpContext) {
+    const workId = params.id
+
+    if (!workId) {
+      return response.badRequest({ message: 'Aucun ID de manga fourni.' })
+    }
+
+    try {
+      const work = await Work.findOrFail(workId)
+      if (!work.sourceUrl) {
+        return response.badRequest({ message: 'Le manga n\'a pas d\'URL source.' })
+      }
+
+      const images = await scrapeImagesFromUrl(work.sourceUrl)
+      console.log("cc"+images)
+      return response.ok({ images }) // ✅ retourne les images dans un objet
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération des images :', error)
+      return response.notFound({ message: 'Manga non trouvé ou erreur de scraping.' })
+    }
+  }
+
 }
