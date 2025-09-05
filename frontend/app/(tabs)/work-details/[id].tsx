@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { Text, View, Image, ScrollView, TouchableOpacity, Modal } from "react-native"
 import { useEffect, useState } from "react"
-import {getMangaDetails, getSearchImages} from "../../../services/WorkService"
+import {getMangaDetails, getSearchImages, ifMangaIsFavorite, putFavoriteManga} from "../../../services/WorkService"
 import Checkbox from "expo-checkbox"
-import { AiOutlineHeart } from "react-icons/ai"
+import {AiFillHeart, AiOutlineHeart} from "react-icons/ai"
 import { AiFillTool } from "react-icons/ai"
 import { useAuth } from "../../../provider/AuthProvider"
 
@@ -14,37 +14,41 @@ const WorkDetails = () => {
     const [readChapters, setReadChapters] = useState<number[]>([])
     const [isAdminModalVisible, setIsAdminModalVisible] = useState(false)
     const [images, setImages] = useState<string[]>([])
-
+    const [response, setResponse] = useState(null)
+    const [ifMangaLiked, setIfMangaLiked] = useState(false)
     const { isAdmin } = useAuth()
 
     useEffect(() => {
         const fetchWork = async () => {
             try {
                 const res = await getSearchImages(Number(id))
-                console.log(res)
                 setImages(res.images)
             } catch (err) {
                 console.error("Erreur :", err)
             }
         }
 
-        fetchWork()
-    }, [id])
+         fetchWork()
+    }, [])
 
     useEffect(() => {
         const fetchImages = async () => {
             try {
 
                 const res = await getMangaDetails(Number(id))
-                console.log(res)
                 setWork(res)
+                const resIfMangaLiked=await ifMangaIsFavorite(Number(id))
+                console.log(resIfMangaLiked)
+
+                setIfMangaLiked(resIfMangaLiked)
+
             } catch (err) {
                 console.error("Erreur :", err)
             }
         }
 
         fetchImages()
-    }, [isAdminModalVisible])
+    }, [isAdminModalVisible,response])
 
     const toggleChapter = (chapterNumber: number) => {
         setReadChapters((prev) =>
@@ -56,7 +60,8 @@ const WorkDetails = () => {
 
     const handleFavorite = async (workId: number) => {
         try {
-            console.log("Ajouté aux favoris :", workId)
+            const response=await putFavoriteManga(workId)
+            setResponse(response)
         } catch (err) {
             console.error("Erreur favori :", err)
         }
@@ -103,7 +108,11 @@ const WorkDetails = () => {
                         <View className="flex-row justify-between items-center mb-4">
                             <Text className="text-2xl font-bold flex-1">{work?.title}</Text>
                             <TouchableOpacity onPress={() => handleFavorite(work.id)}>
-                                <AiOutlineHeart className="text-3xl text-red-500" />
+                                {ifMangaLiked ? (
+                                    <AiFillHeart className="text-3xl text-red-500" />
+                                ) : (
+                                    <AiOutlineHeart className="text-3xl text-red-500" />
+                                )}
                             </TouchableOpacity>
                         </View>
 
@@ -124,7 +133,7 @@ const WorkDetails = () => {
 
                         <View className="flex flex-wrap gap-y-2 gap-x-4">
                             {Array.from({ length: chapterCount }, (_, i) => chapterCount - i).map((chapterNum) => {
-                                const isChecked = readChapters.includes(chapterNum)
+                                const isChecked = readChapters?.includes(chapterNum)
                                 return (
                                     <View
                                         key={chapterNum}

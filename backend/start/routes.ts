@@ -22,7 +22,9 @@ router
     router.get('/getWorkById/:id', [WorksController, 'getMangaDetailsWithId'])
     router.get('/auth/isAdmin', [AuthController, 'isAdmin'])
     router.get('/works/searchImages/:id', [WorksController, 'searchImages'])
-
+    router.post("/users/favoriteManga/:id", [WorksController, 'putFavoriteManga'])
+    router.get("/users/ifMangaIsFavorite/:id", [WorksController, 'ifMangaIsFavorite'])
+    router.get("/users/getFavoriteMangas", [WorksController, 'getFavoriteMangas'])
   })
   .use([
     middleware.auth({
